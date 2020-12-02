@@ -1,0 +1,90 @@
+<setting>
+    <!-- component -->
+    <tag load="mofron-comp-appbase">AppBase</tag>
+    <tag load="mofron-comp-heading">Heading</tag>
+<!--
+    <tag load="mofron-comp-form">Form</tag>
+-->
+    <tag load="mofron-comp-dropdown">DropDown</tag>
+    <tag load="mofron-comp-input">Input</tag>
+    <tag load="mofron-comp-frame">Frame</tag>
+    <tag load="mofron-comp-button">Button</tag>
+    <tag load="mofron-comp-text">Text</tag>
+    <tag load="mofron-comp-code">Code</tag>
+    <tag load="mofron-comp-footer">Footer</tag>
+    <tag load="mofron-effect-fade">Fade</tag>
+    <tag load="mofron-effect-hrzpos">HrzPos</tag>
+    <tag load="mofron-layout-margin">Margin</tag>
+    <tag load="mofron-layout-grid">Grid</tag>
+    <tag load="mofron-layout-hrzcenter">HrzCent</tag>
+    <root-conf>
+        <effect:Fade>true,1000</effect:Fade>
+        <theme>
+            <Text:config color='#787878' font="'Major Mono Display'"></Text:config>
+        </theme>
+    </root-conf>
+</setting>
+
+<script src="./mof/js/country.js"></script>
+<script name=generate run=init>
+let country = (0 === fm_country.value()) ? "" : "country=" + country_prefix[fm_country.value()-1];
+let ssid    = 'ssid="' + fm_ssid.value() + '"';
+let pass    = 'psk="' + fm_pass.value() + '"';
+let auth    = fm_auth.value();
+let encry   = fm_encry.value();
+
+let gen_ret = "";
+gen_ret += "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n";
+gen_ret += "update_config=1\n";
+
+gen_ret += country + "\n";
+gen_ret += "network={" + "\n";
+gen_ret += "\t" + ssid + "\n";
+
+gen_ret += (0 === auth) ? "\tproto=RSN\n" : "\tproto=WPA\n";
+gen_ret += "\tkey_mgmt=WPA-PSK\n";
+
+gen_ret += (0 === encry) ? "\tpairwise=TKIP\n" : "\tpairwise=CCMP\n";
+gen_ret += (0 === encry) ? "\tgroup=TKIP\n" : "\tgroup=CCMP\n";
+
+gen_ret += "\t" + pass + "\n";
+gen_ret += "}\n";
+ 
+retcode.text(gen_ret);
+</script>
+
+<AppBase color='#ccd1f5' base-color='#fafafa' title=(CONF-GEN,"./img/icon_b.png")>
+    <Heading style="padding:0.5rem;">wpa_supplicant.conf</Heading>
+    <div layout=Grid:[50,50]>
+        <div>
+            <layout>
+                <Margin>top,0.3rem</Margin>
+                <Margin>left,0.7rem</Margin>
+            </layout>
+            <theme>
+                <FormItem:config width=3rem></FormItem:config>
+            </theme>
+            
+            <DropDown name=fm_country label=country height=0.35rem>Select Country</DropDown>
+            <Input name=fm_ssid label=ssid></Input>
+            <Input name=fm_pass type=password label=passphrase></Input>
+            <DropDown name=fm_auth label=authentication height=0.35rem>[WPA2-PSK,WPA-PSK]</DropDown>
+            <DropDown name=fm_encry label=encryption height=0.35rem>[TKIP,AES]</DropDown>
+            
+            <Button name=gen_btn click-event=@generate>
+                <effect:HrzPos>center</effect:HrzPos>
+                <size>2.5rem,0.5rem</size>
+                <text>Generate</text>
+            </Button>
+        </div>
+        <div>
+            <Text size=0.3rem>result:</Text>
+            <Frame name=result size=(90%,@null)>
+                <Code name=retcode>
+                    <style lock=true>font-family:monospace;</style>
+                </Code>
+            </Frame>
+        </div>
+    </div>
+    <Footer color='#ccd1f5' style="margin-top:0.3rem;" height=0.5rem></Footer>
+</AppBase>
